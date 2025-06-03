@@ -55,8 +55,8 @@ A full-stack MERN (MongoDB, Express.js, React, Node.js) application with subdoma
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/mern-shop-app.git
-cd mern-shop-app
+git clone https://github.com/rashed9810/ShopAuth.git
+cd ShopAuth
 ```
 
 ### 2. Install Dependencies
@@ -114,8 +114,7 @@ npm run client
 
 ## 🌐 Live Demo
 
-- **Frontend**: [Demo Link](https://your-demo-link.vercel.app)
-- **Backend API**: [API Link](https://your-api-link.herokuapp.com)
+
 
 ### Demo Credentials
 
