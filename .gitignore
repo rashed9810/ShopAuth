@@ -80,3 +80,4 @@ build/Release
 
 # Optional eslint cache
 .eslintcache
+"data/db/" 
