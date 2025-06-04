@@ -45,23 +45,25 @@ Run these commands in MongoDB Atlas console for better performance:
 
 ```javascript
 // Username index
-db.users.createIndex({ "username": 1 }, { unique: true });
+db.users.createIndex({ username: 1 }, { unique: true });
 
 // Shop name index
-db.shops.createIndex({ "name": 1 }, { unique: true });
+db.shops.createIndex({ name: 1 }, { unique: true });
 
 // Owner index for shops
-db.shops.createIndex({ "owner": 1 });
+db.shops.createIndex({ owner: 1 });
 ```
 
 ## 7. Backup Configuration
 
 1. Enable backup in MongoDB Atlas:
+
    - Go to Clusters → ... → Back Up
    - Enable continuous backup
    - Set retention period
 
 2. Use the backup script:
+
 ```bash
 cd server/scripts
 ./backup.cmd
@@ -70,6 +72,7 @@ cd server/scripts
 ## 8. Monitoring
 
 1. Enable MongoDB Atlas monitoring:
+
    - Go to Clusters → ... → Monitoring
    - Set up alerts for:
      - Connection count
@@ -77,6 +80,7 @@ cd server/scripts
      - Storage capacity
 
 2. Check application logs:
+
 ```bash
 cd server/logs
 ```

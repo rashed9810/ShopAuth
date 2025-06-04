@@ -1,16 +1,14 @@
-import React, { createContext, useContext, useReducer, useEffect } from "react";
+import { createContext, useContext, useReducer, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 
 const AuthContext = createContext();
 
-
-const API_BASE_URL = "http://localhost:5001/api";
-
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = API_BASE_URL;
-
 
 const authReducer = (state, action) => {
   switch (action.type) {
@@ -43,16 +41,13 @@ const initialState = {
 export const AuthProvider = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
-  
   useEffect(() => {
     checkAuthStatus();
   }, []);
 
-  
   useEffect(() => {
     const requestInterceptor = axios.interceptors.request.use(
       (config) => {
-        
         return config;
       },
       (error) => {
@@ -101,7 +96,6 @@ export const AuthProvider = ({ children }) => {
         dispatch({ type: "SET_USER", payload: response.data.user });
       }
     } catch (error) {
-      
       try {
         await refreshToken();
         const response = await axios.get("/user/profile");

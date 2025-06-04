@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const logger = require('./logger');
+const logger = require("./logger");
 
 const connectDB = async () => {
   try {
@@ -9,8 +9,8 @@ const connectDB = async () => {
       maxPoolSize: 50,
       retryWrites: true,
       retryReads: true,
-      w: 'majority',
-      ssl: process.env.NODE_ENV === 'production'
+      w: "majority",
+      ssl: process.env.NODE_ENV === "production",
     };
 
     const conn = await mongoose.connect(process.env.MONGODB_URI, options);
