@@ -3,6 +3,7 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
+const rateLimit = require('express-rate-limit');
 
 // Load environment variables
 dotenv.config();
@@ -18,12 +19,13 @@ const corsOptions = {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     
-    // Allow localhost and subdomains
+    // Allow localhost, subdomains and Vercel domains
     const allowedOrigins = [
       'http://localhost:5173',
       'http://127.0.0.1:5173',
       /^http:\/\/.*\.localhost:5173$/,
-      /^http:\/\/.*\.127\.0\.0\.1:5173$/
+      /^http:\/\/.*\.127\.0\.0\.1:5173$/,
+      /^https:\/\/shopauth.*\.vercel\.app$/
     ];
     
     const isAllowed = allowedOrigins.some(pattern => {
@@ -46,15 +48,46 @@ const corsOptions = {
   exposedHeaders: ['Set-Cookie']
 };
 
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: {
+    success: false,
+    message: 'Too many requests from this IP, please try again later.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
 // Middleware
+app.use(limiter); // Apply rate limiting to all routes
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+// Set secure cookie settings
+app.set('trust proxy', 1); // trust first proxy
+app.use((req, res, next) => {
+  // Enhance security headers
+  res.header('X-Content-Type-Options', 'nosniff');
+  res.header('X-Frame-Options', 'DENY');
+  res.header('X-XSS-Protection', '1; mode=block');
+  next();
+});
+
+const logger = require('./config/logger');
+
 // Request logging middleware
 app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.path} - Origin: ${req.get('Origin') || 'No Origin'}`);
+  logger.info('Incoming request', {
+    method: req.method,
+    path: req.path,
+    origin: req.get('Origin') || 'No Origin',
+    ip: req.ip,
+    userAgent: req.get('User-Agent')
+  });
   next();
 });
 
@@ -64,11 +97,18 @@ app.use('/api/user', require('./routes/user'));
 
 // Health check route
 app.get('/api/health', (req, res) => {
-  res.json({
+  const health = {
     success: true,
-    message: 'Server is running',
-    timestamp: new Date().toISOString()
-  });
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    memory: process.memoryUsage(),
+    cpu: process.cpuUsage(),
+    environment: process.env.NODE_ENV,
+    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+  };
+
+  logger.info('Health check', health);
+  res.json(health);
 });
 
 // 404 handler
@@ -81,11 +121,29 @@ app.use('*', (req, res) => {
 
 // Global error handler
 app.use((error, req, res, next) => {
-  console.error('Global error handler:', error);
+  // Log error with context
+  logger.error('Error occurred', {
+    error: {
+      message: error.message,
+      stack: error.stack,
+      status: error.status
+    },
+    request: {
+      method: req.method,
+      path: req.path,
+      ip: req.ip,
+      userId: req.user?.id
+    }
+  });
+  
+  // Don't expose error details in production
+  const message = process.env.NODE_ENV === 'production' 
+    ? 'Internal server error' 
+    : error.message || 'Internal server error';
   
   res.status(error.status || 500).json({
     success: false,
-    message: error.message || 'Internal server error',
+    message,
     ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
   });
 });

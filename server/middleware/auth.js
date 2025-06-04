@@ -4,15 +4,23 @@ const User = require('../models/User');
 // Generate JWT tokens
 const generateTokens = (userId) => {
   const accessToken = jwt.sign(
-    { userId },
+    { userId, type: 'access' },
     process.env.JWT_SECRET,
-    { expiresIn: '30m' }
+    { 
+      expiresIn: '30m',
+      audience: process.env.NODE_ENV === 'production' ? process.env.COOKIE_DOMAIN : 'localhost',
+      issuer: 'shopauth-api'
+    }
   );
   
   const refreshToken = jwt.sign(
-    { userId },
+    { userId, type: 'refresh' },
     process.env.JWT_REFRESH_SECRET,
-    { expiresIn: '7d' }
+    { 
+      expiresIn: '7d',
+      audience: process.env.NODE_ENV === 'production' ? process.env.COOKIE_DOMAIN : 'localhost',
+      issuer: 'shopauth-api'
+    }
   );
   
   return { accessToken, refreshToken };
