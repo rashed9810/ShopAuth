@@ -114,11 +114,9 @@ npm run client
 
 ## 🌐 Live Demo
 
-
-
 ### Demo Credentials
 
-```
+```text
 Username: demo_user
 Password: Demo123!
 Shop Names: beautyhub, grocerypoint, techstore
@@ -126,7 +124,7 @@ Shop Names: beautyhub, grocerypoint, techstore
 
 ## 📁 Project Structure
 
-```
+```text
 mern-shop-app/
 ├── server/                 # Backend application
 │   ├── config/            # Database configuration
@@ -197,12 +195,30 @@ The application automatically handles subdomains in development:
 
 For production, configure your DNS to point subdomains to your server:
 
-```
+```text
 A record: yourdomain.com → your-server-ip
 CNAME: *.yourdomain.com → yourdomain.com
 ```
 
 ## 🚀 Deployment
+
+### CI/CD Pipeline
+
+This project includes a GitHub Actions workflow that automatically:
+
+- Runs tests on every push and pull request
+- Builds the application
+- Deploys to Vercel on successful builds to the main branch
+
+#### Setting up Vercel Deployment
+
+To enable automatic deployment, add these secrets to your GitHub repository:
+
+1. Go to your GitHub repository → Settings → Secrets and variables → Actions
+2. Add the following secrets:
+   - `VERCEL_TOKEN`: Your Vercel API token
+   - `VERCEL_ORG_ID`: Your Vercel organization ID
+   - `VERCEL_PROJECT_ID`: Your Vercel project ID
 
 ### Backend Deployment
 
@@ -234,7 +250,7 @@ CNAME: *.yourdomain.com → yourdomain.com
 
 ### Common Issues
 
-**MongoDB Connection Error**
+#### MongoDB Connection Error
 
 ```bash
 # Check if MongoDB is running
@@ -244,13 +260,13 @@ sudo systemctl status mongod
 sudo systemctl start mongod
 ```
 
-**Subdomain Not Working**
+#### Subdomain Not Working
 
 - Ensure you're using `localhost` not `127.0.0.1`
 - Clear browser cache and cookies
 - Check CORS configuration in server
 
-**Authentication Issues**
+#### Authentication Issues
 
 - Verify JWT secrets are set in .env
 - Check cookie settings in browser
@@ -287,4 +303,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ---
 
-**Happy Coding! 🎉**
+## Happy Coding! 🎉
