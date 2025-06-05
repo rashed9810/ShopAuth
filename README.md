@@ -282,24 +282,6 @@ sudo systemctl start mongod
 | `PORT`               | Server port               | `5000`                                    |
 | `NODE_ENV`           | Environment mode          | `development`                             |
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature-name`
-3. Commit changes: `git commit -m 'Add feature'`
-4. Push to branch: `git push origin feature-name`
-5. Submit a pull request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details. 
-
-## 🙏 Acknowledgments 
-
-- React team for the amazing framework
-- Express.js for the robust backend framework
-- MongoDB for the flexible database
-- All open-source contributors
 
 ---
 
