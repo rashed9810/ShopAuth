@@ -4,11 +4,11 @@ A full-stack MERN (MongoDB, Express.js, React, Node.js) application with subdoma
 
 ## 🚀 Features
 
-### Authentication System
+### Authentication System 
 
-- **Secure Signup**: Username validation, strong password requirements (8+ chars, 1 number, 1 special char)
-- **Smart Signin**: "Remember Me" functionality (7 days vs 30 minutes session)
-- **JWT-based Auth**: Access tokens with automatic refresh mechanism
+- **Secure Signup**: Username validation, strong password requirements (8+ chars, 1 number, 1 special char) 
+- **Smart Signin**: "Remember Me" functionality (7 days vs 30 minutes session) 
+- **JWT-based Auth**: Access tokens with automatic refresh mechanism 
 - **Cross-subdomain Sessions**: Authentication preserved across all shop subdomains
 
 ### Shop Management
@@ -20,20 +20,20 @@ A full-stack MERN (MongoDB, Express.js, React, Node.js) application with subdoma
 
 ### User Interface
 
-- **Modern Design**: Beautiful, responsive UI with gradient backgrounds
-- **Loading States**: Smooth loading spinners and transitions
-- **Error Handling**: Comprehensive error messages and validation
+- **Modern Design**: Beautiful, responsive UI with gradient backgrounds 
+- **Loading States**: Smooth loading spinners and transitions 
+- **Error Handling**: Comprehensive error messages and validation  
 - **Profile Management**: Easy access to shops and logout functionality
 
 ## 🛠️ Tech Stack
 
 ### Backend
 
-- **Node.js** with Express.js
-- **MongoDB** with Mongoose ODM
-- **JWT** for authentication
-- **bcryptjs** for password hashing
-- **CORS** configured for subdomain support
+- **Node.js** with Express.js 
+- **MongoDB** with Mongoose ODM 
+- **JWT** for authentication 
+- **bcryptjs** for password hashing 
+- **CORS** configured for subdomain support 
 
 ### Frontend
 
@@ -42,11 +42,11 @@ A full-stack MERN (MongoDB, Express.js, React, Node.js) application with subdoma
 - **React Hook Form** for form handling
 - **Axios** for API calls
 - **Lucide React** for icons
-- **React Hot Toast** for notifications
+- **React Hot Toast** for notifications 
 
 ## 📋 Prerequisites
 
-- Node.js (v16 or higher)
+- Node.js (v16 or higher) 
 - MongoDB (local or cloud instance)
 - Git
 
@@ -182,7 +182,7 @@ mern-shop-app/
 - Username format validation
 - Password strength validation
 
-## 🌐 Subdomain Configuration
+## 🌐 Subdomain Configuration 
 
 ### Development Setup
 
@@ -200,7 +200,7 @@ A record: yourdomain.com → your-server-ip
 CNAME: *.yourdomain.com → yourdomain.com
 ```
 
-## 🚀 Deployment
+## 🚀 Deployment 
 
 ### CI/CD Pipeline
 
@@ -215,7 +215,7 @@ This project includes a GitHub Actions workflow that automatically:
 To enable automatic deployment, add these secrets to your GitHub repository:
 
 1. Go to your GitHub repository → Settings → Secrets and variables → Actions
-2. Add the following secrets:
+2. Add the following secrets: 
    - `VERCEL_TOKEN`: Your Vercel API token
    - `VERCEL_ORG_ID`: Your Vercel organization ID
    - `VERCEL_PROJECT_ID`: Your Vercel project ID
@@ -231,9 +231,9 @@ To enable automatic deployment, add these secrets to your GitHub repository:
 
 1. Build the React app: `npm run build`
 2. Deploy to platforms like Vercel, Netlify, or serve with Express
-3. Configure subdomain routing on your hosting platform
+3. Configure subdomain routing on your hosting platform 
 
-## 🧪 Testing
+## 🧪 Testing 
 
 ### Manual Testing Checklist
 
@@ -292,9 +292,9 @@ sudo systemctl start mongod
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the LICENSE file for details. 
 
-## 🙏 Acknowledgments
+## 🙏 Acknowledgments 
 
 - React team for the amazing framework
 - Express.js for the robust backend framework

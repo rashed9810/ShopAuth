@@ -11,8 +11,22 @@ const performanceMiddleware = require("../middleware/performance");
 // Load environment variables
 dotenv.config();
 
-// Connect to database
-connectDB();
+// Global connection promise to reuse in serverless
+let cachedConnection = null;
+
+const ensureConnection = async () => {
+  if (cachedConnection && mongoose.connection.readyState === 1) {
+    return cachedConnection;
+  }
+
+  try {
+    cachedConnection = await connectDB();
+    return cachedConnection;
+  } catch (error) {
+    logger.error("Failed to connect to database:", error);
+    throw error;
+  }
+};
 
 const app = express();
 
@@ -26,12 +40,15 @@ const corsOptions = {
     const allowedOrigins = [
       "http://localhost:5173",
       "http://127.0.0.1:5173",
+      "http://localhost:3000",
+      "http://127.0.0.1:3000",
       /^http:\/\/.*\.localhost:5173$/,
       /^http:\/\/.*\.127\.0\.0\.1:5173$/,
       /^https:\/\/.*\.vercel\.app$/,
       "https://shopauth.vercel.app",
       "https://shopauth-client.vercel.app",
-    ];
+      process.env.FRONTEND_URL,
+    ].filter(Boolean); // Remove undefined values
 
     const isAllowed = allowedOrigins.some((pattern) => {
       if (typeof pattern === "string") {
@@ -43,33 +60,43 @@ const corsOptions = {
     if (isAllowed) {
       callback(null, true);
     } else {
-      logger.warn("CORS blocked origin:", { origin });
-      callback(new Error("Not allowed by CORS"));
+      logger.warn("CORS blocked origin:", { origin, allowedOrigins });
+      // In development, be more permissive
+      if (process.env.NODE_ENV === "development") {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
     }
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
   exposedHeaders: ["Set-Cookie"],
+  optionsSuccessStatus: 200, // For legacy browser support
 };
 
-// Rate limiting
+// Rate limiting - more permissive for serverless
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  max: process.env.NODE_ENV === "production" ? 200 : 1000, // Higher limit for production
   message: {
     success: false,
     message: "Too many requests from this IP, please try again later.",
   },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => {
+    // Skip rate limiting for health checks
+    return req.path === "/api/health";
+  },
 });
 
 // Middleware
 app.use(limiter);
 app.use(cors(corsOptions));
 app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
 app.use(performanceMiddleware);
 
@@ -106,20 +133,33 @@ app.use("/api/user", userRoutes);
 app.use("/api/monitor", monitorRoutes);
 
 // Health check route
-app.get("/api/health", (req, res) => {
-  const health = {
-    success: true,
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    memory: process.memoryUsage(),
-    cpu: process.cpuUsage(),
-    environment: process.env.NODE_ENV,
-    database:
-      mongoose.connection.readyState === 1 ? "connected" : "disconnected",
-  };
+app.get("/api/health", async (req, res) => {
+  try {
+    // Ensure database connection
+    await ensureConnection();
 
-  logger.info("Health check", health);
-  res.json(health);
+    const health = {
+      success: true,
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      memory: process.memoryUsage(),
+      cpu: process.cpuUsage(),
+      environment: process.env.NODE_ENV || "development",
+      database: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
+      version: "1.0.0",
+      serverless: !!process.env.VERCEL,
+    };
+
+    logger.info("Health check", health);
+    res.json(health);
+  } catch (error) {
+    logger.error("Health check failed", error);
+    res.status(500).json({
+      success: false,
+      message: "Health check failed",
+      error: process.env.NODE_ENV === "development" ? error.message : "Internal server error"
+    });
+  }
 });
 
 // 404 handler
@@ -158,4 +198,23 @@ app.use((error, req, res, next) => {
   });
 });
 
-module.exports = app;
+// Serverless function handler
+const handler = async (req, res) => {
+  try {
+    // Ensure database connection for each request in serverless
+    await ensureConnection();
+
+    // Handle the request
+    return app(req, res);
+  } catch (error) {
+    logger.error("Serverless handler error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined
+    });
+  }
+};
+
+module.exports = handler;
+module.exports.app = app;
